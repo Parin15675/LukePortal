@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    # kubernetes.io/ingress.class: application-gateway01
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: cg-aks-agw01-nonprd-ssl_certificate
+    appgw.ingress.kubernetes.io/backend-path-prefix: "/"
+    appgw.ingress.kubernetes.io/request-timeout: "1800"
+  name: ing-mendix-mer-sit-agw01
+  namespace: luke-uat
+spec:
+  ingressClassName: application-gateway01
+  rules:
+  - host: luke-nonprod.central.co.th
+    http:
+      paths:
+      - path: /*
+        pathType: Prefix
+        backend:
+          service:
+            name: luke-portal-website
+            port:
+              number: 80

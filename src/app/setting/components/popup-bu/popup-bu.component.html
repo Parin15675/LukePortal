@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="wrapper-box">
+    <div class="row">
+      <div class="col-md-6">
+        <a routerLink="/setting/permission-edit/{{data.userId}}">
+          <div class="item" (click)="onNoClick()">
+            <p>Edit permission</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a routerLink="/setting/permission-clone/{{data.userId}}">
+          <div class="item" (click)="onNoClick()">
+            <p>Clone permission</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

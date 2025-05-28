@@ -1,0 +1,48 @@
+{
+    "msal": {
+      "auth": {
+        "clientId": "01941464-fdac-4cf1-ae36-9a3ab8e81c6a",
+        "authority": "https://centralgroupb2cdev.b2clogin.com/centralgroupb2cdev.onmicrosoft.com/B2C_1_LUKE_PORTAL",
+        "knownAuthorities": ["centralgroupb2cdev.b2clogin.com"],
+        "redirectUri": "https://luke-nonprod.central.co.th/",
+        "postLogoutRedirectUri": "/"
+      },
+      "cache": {
+        "cacheLocation": "localStorage",
+        "storeAuthStateInCookie": true
+      }
+    },
+    "guard": {
+      "interactionType": "redirect",
+      "authRequest": {
+        "scopes": [
+          "user.read"
+        ]
+      },
+      "loginFailedRoute": "/login-failed"
+    },
+    "interceptor": {
+      "interactionType": "redirect",
+      "protectedResourceMap": [
+        [
+          "https://graph.microsoft.com/v1.0/me",
+          [
+            "user.read"
+          ]
+        ]
+      ]
+    },
+    "slickAdmin": {
+      "url": "https://nonprd-services-apim.central.co.th/slkadmin/services/v3/permissions",
+      "token": "44d844a3be934dc285bbe8ed84dbb41c"
+    },
+    "luke": {
+      "apiUrl": "https://nonprd-services-apim.central.co.th/luke/api/",
+      "ocp_apim_subscription_key": "baf5faef69ea4f4cbeae2bdecfd09da1"
+    },
+    "appInfo": {
+      "environmentName": "non-production",
+      "version": "v2.0.1"
+    }
+  }
+  

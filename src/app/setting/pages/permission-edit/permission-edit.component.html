@@ -1,0 +1,139 @@
+<div *ngIf="isLoading" class="loading-overlay">
+  <mat-spinner color="accent"></mat-spinner>
+</div>
+
+<div class="container p-4 bg-white main-wrapper">
+  <h2>Edit permission</h2>
+  <div class="row">
+    <div class="col-md-6" *ngIf="userInfo">
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <p class="font-bold">Name: </p>
+        </div>
+        <div class="col-md-9">
+          <p>{{userInfo.name   }} {{userInfo.lastName}}</p>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <p class="font-bold">Email: </p>
+        </div>
+        <div class="col-md-9">
+          <p>{{userInfo.email}}</p>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <p class="font-bold">BU: </p>
+        </div>
+        <div class="col-md-9">
+          <p>{{userInfo.bu}}</p>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <p class="font-bold">Role: </p>
+        </div>
+        <div class="col-md-9">
+          <p>{{userInfo.role}}</p>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="pt-4" >
+        <p class="font-bold">Summary</p>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" class="text-center">No.</th>
+              <th scope="col" class="text-center">Dashboard name</th>
+              <th scope="col" class="text-center">Category</th>
+              <th scope="col" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of selectedItemList; let i = index"
+              [ngClass]="{
+                'bg-light': userPermission.indexOf(item) % 2 === 0
+              }"
+            >
+              <td  class="text-center">
+                {{i + 1}}
+              </td>
+              <td class="text-center">{{ item.nameEn }}</td>
+              <td class="text-center">{{ item.cateNameEn }}</td>
+              <td class="text-center">
+                <mat-icon (click)="deleteSelectedItems(item)">delete</mat-icon>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="btn-section" *ngIf="selectedItemList.length > 0">
+          <app-secondary-btn
+            [content]="'Cancel'"
+            (onClick)="handleAction('Cancel')"
+          ></app-secondary-btn>
+    
+          <app-primary-btn
+            [content]="btnAction"
+            (onClick)="handleAction(btnAction)"
+          ></app-primary-btn>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">List of Dashboard</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col" class="text-center">Dashboard name</th>
+                <th scope="col" class="text-center">BU</th>
+                <th scope="col" class="text-center">Category</th>
+                <th scope="col" class="text-center">Select</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let item of dashboardList"
+                [ngClass]="{
+                  'bg-light': dashboardList.indexOf(dashboardList) % 2 === 0
+                }"
+              >
+                <td>
+                  {{ item.nameEn }}
+                </td>
+                <td class="text-center">{{ item.bu }}</td>
+                <td class="text-center">{{ item.cateNameEn }}</td>
+                <td class="text-center">
+                  <mat-checkbox [(ngModel)]="selectedItems[item.id]" (change)="onCheckboxChange(item, $event)"></mat-checkbox>
+
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination-controls">
+            <button
+              class="page-btn"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)"
+            >
+              <mat-icon class="centered-icon">chevron_left</mat-icon>
+            </button>
+            <span>{{ currentPage }} of {{ totalPages }}</span>
+            <button
+              class="page-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)"
+            >
+              <mat-icon class="centered-icon">chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

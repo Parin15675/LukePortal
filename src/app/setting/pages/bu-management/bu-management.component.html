@@ -1,0 +1,260 @@
+<div *ngIf="isLoading" class="loading-overlay">
+  <mat-spinner color="accent"></mat-spinner>
+</div>
+
+<div class="container p-4 bg-white">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>User Management</h2>
+      <div class="btn-section">
+
+      </div>
+      <div class="d-flex align-items-center">
+        <input
+          type="text"
+          class="form-control me-2"
+          [(ngModel)]="emailSearch"
+          placeholder="Fill user email"
+        />
+        <button
+          type="button"
+          class="btn btn-outline-secondary me-2"
+          *ngIf="emailSearch"
+          (click)="clearSearch()"
+        >
+          Clear
+        </button>
+        <app-primary-btn
+          [content]="'Search'"
+          (onClick)="handleAction('search')"
+        ></app-primary-btn>
+      </div>
+      
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">List of User</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col" class="text-center">Name</th>
+                <th scope="col" class="text-center">Permission</th>
+                <th scope="col" class="text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let item of usersList"
+                [ngClass]="{
+                  'bg-light': usersList.indexOf(item) % 2 === 0
+                }"
+              >
+                <td (click)="editUser(item)" class="can-click">
+                  {{ item.email }}
+                </td>
+                <td class="text-center">{{ item.amountDashboard }}</td>
+                <td class="text-center">
+                  <span
+                    [ngClass]="{
+                      'bg-green': item.isActive,
+                      'badge bg-danger': !item.isActive
+                    }"
+                    >&nbsp;</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination-controls">
+            <button
+              class="page-btn"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)"
+            >
+              <mat-icon class="centered-icon">chevron_left</mat-icon>
+            </button>
+
+            <span>{{ currentPage }} of {{ totalPages }}</span>
+            <button
+              class="page-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)"
+            >
+              <mat-icon class="centered-icon">chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form section -->
+    <div class="col-md-6">
+      <div class="card-body">
+        <h2 class="card-title">{{ actionTitle }}</h2>
+        <form [formGroup]="fForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <div class="d-inline-flex align-items-center w-100">
+              <label
+                for="exampleInputEmail1"
+                class="form-label"
+                style="min-width: 200px !important"
+              >
+                Email
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="email"
+                style="width: 100%"
+                aria-describedby="emailHelp"
+                placeholder="Fill user email"
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-inline-flex align-items-center w-100">
+              <label
+                for="nameEn"
+                class="form-label"
+                style="min-width: 200px !important"
+              >
+                Name
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="name"
+                style="width: 100%"
+                placeholder="Fill user name"
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-inline-flex align-items-center w-100">
+              <label
+                for="lastname"
+                class="form-label"
+                style="min-width: 200px !important"
+              >
+                Last name
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="lastName"
+                style="width: 100%"
+                placeholder="Fill user lastname"
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-inline-flex align-items-center w-100">
+              <label
+                for="bu"
+                class="form-label"
+                style="min-width: 200px !important"
+                >Role<span style="color: red"> *</span></label
+              >
+              <select
+                formControlName="role"
+                class="form-control"
+                style="width: 100%; font-size: 14px; color: #212529"
+              >
+                <option value="" disabled>Select user Role</option>
+                <option *ngFor="let role of roleOptions" [value]="role">
+                  {{ role }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-inline-flex align-items-center w-100">
+              <label
+                for="bu"
+                class="form-label"
+                style="min-width: 200px !important"
+                >BU<span style="color: red"> *</span></label
+              >
+              <select
+                formControlName="bu"
+                class="form-control"
+                style="width: 100%; font-size: 14px; color: #212529"
+              >
+                <option value="" disabled>Select user BU</option>
+                <option *ngFor="let bu of buOptions" [value]="bu">
+                  {{ bu }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="form-check form-switch form-switch-md">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="exampleInputPassword1"
+                  class="form-label"
+                  style="min-width: 240px !important"
+                >
+                  Status
+                </label>
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  formControlName="isActive"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end">
+            <div class="btn-section">
+              <app-secondary-btn
+                [content]="'Cancel'"
+                (onClick)="handleAction('Cancel')"
+              ></app-secondary-btn>
+            </div>
+            <div class="btn-section">
+              <app-primary-btn
+                [content]="btnAction"
+                (onClick)="handleAction(btnAction)"
+              ></app-primary-btn>
+            </div>
+          </div>
+        </form>
+        <div *ngIf="isEditMode">
+          <mat-divider></mat-divider>
+          <h2>Permission</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col" class="text-center">No.</th>
+                <th scope="col" class="text-center">Dashboard name</th>
+                <th scope="col" class="text-center">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let item of userPermission; let i = index"
+                [ngClass]="{
+                  'bg-light': usersList.indexOf(item) % 2 === 0
+                }"
+              >
+                <td class="text-center">
+                  {{ i + 1 }}
+                </td>
+                <td class="text-center">{{ item.nameEn }}</td>
+                <td class="text-center">
+                  {{ item.cateNameEn }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="btn-section">
+          <app-primary-btn
+          [content]="'Manage Permission'"
+          (onClick)="handleAction('Manage')"
+        ></app-primary-btn>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

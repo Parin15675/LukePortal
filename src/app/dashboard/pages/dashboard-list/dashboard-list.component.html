@@ -1,0 +1,32 @@
+<div *ngIf="isLoading" class="loading-overlay">
+  <mat-spinner color="accent"></mat-spinner>
+</div>
+<div class="container">
+  <div class="dropdown-container">
+    <div class="dropdown my-3">
+      <button mat-button [matMenuTriggerFor]="menu" class="dropdown-button">Move to Category</button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item *ngFor="let menu of listMenu" (click)="scrollToSection(menu.nameEn)">
+          {{ menu.nameEn }}
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+
+  <div class="row" *ngFor="let menu of listMenu">
+    <h1 class="font-bold" [id]="menu.nameEn">{{ menu.nameEn }}</h1>
+    <div class="col-6 col-md-3" *ngFor="let item of menu.data">
+      <a
+        [routerLink]="['/report']"
+        [queryParams]="{ workspaceId: item.workspaceId, reportId: item.reportId }"
+        class="item-list"
+      >
+        <img [src]="item.iconUrl" alt="" class="img-fluid img-custom" />
+        <div class="item-head">
+          <p>{{ item.nameEn }}</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

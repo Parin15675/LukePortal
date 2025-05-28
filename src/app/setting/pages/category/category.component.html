@@ -1,0 +1,188 @@
+<div *ngIf="isLoading" class="loading-overlay">
+  <mat-spinner color="accent"></mat-spinner>
+</div>
+
+<div class="container p-4 bg-white">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Category management</h2>
+      <div class="btn-section">
+      </div>  
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">List of category</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col" class="text-center">Name of category</th>
+                <th scope="col" class="text-center">Count</th>
+                <th scope="col" class="text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let category of categories"
+                [ngClass]="{ 'bg-light': categories.indexOf(category) % 2 === 0 }"
+              >
+                <td (click)="editCategory(category)" class="can-click">
+                  {{ category.nameEn }}
+                </td>
+                <td class="text-center">{{ category.categoryAmount }}</td>
+                <td class="text-center">
+                  <span
+                    [ngClass]="{
+                      'bg-green': category.isActive,
+                      'badge bg-danger': !category.isActive
+                    }"
+                  >
+                    &nbsp;
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination-controls">
+            <button
+              class="page-btn"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)"
+            >
+              <mat-icon class="centered-icon">chevron_left</mat-icon>
+            </button>
+            <span>{{ currentPage }} of {{ totalPages }}</span>
+            <button
+              class="page-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)"
+            >
+              <mat-icon class="centered-icon">chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form section -->
+    <div class="col-md-6">
+        <div class="card-body">
+          <h2 class="card-title">{{ actionTitle }}</h2>
+            <form [formGroup]="categoryForm">
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="exampleInputEmail1"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                >
+                  ชื่อของประเภทงาน (TH)
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="nameTh"
+                  style="width: 100%"
+                  aria-describedby="emailHelp"
+                  placeholder="Fill your name of category"
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="nameEn"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                >
+                  Name of category (ENG)
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="nameEn"
+                  style="width: 100%"
+                  placeholder="Fill your name of category"
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-check form-switch form-switch-md">
+                <div class="d-inline-flex align-items-center w-100">
+                  <label
+                    for="exampleInputPassword1"
+                    class="form-label"
+                    style="min-width: 240px !important"
+                  >
+                    Status
+                  </label>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="isActive"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <div class="btn-section">
+                <app-secondary-btn
+                  [content]="'Cancel'"
+                  (onClick)="functioncall('cancel')"
+                ></app-secondary-btn>
+              </div>
+              <div class="btn-section">
+                <app-primary-btn
+                  [content]="btnAction"
+                  (onClick)="functioncall(btnAction)"
+                ></app-primary-btn>
+              </div>
+            </div>
+          </form>
+            <!-- Activity log -->
+            <div *ngIf="toggleOpen">
+              <mat-divider></mat-divider>
+            <div class="activity-log">
+              <h3 class="card-title">Activity log</h3>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col" class="text-center">Action</th>
+                    <th scope="col" class="text-center">User</th>
+                    <th scope="col" class="text-center">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                  *ngFor="let activity of activities; let i = index"
+                  [ngClass]="{ 'bg-light': activities.indexOf(activity) % 2 === 0  }"
+                >
+                    <td class="text-center"> {{ activity.serviceName  }} </td>
+                    <td class="text-center"> {{ activity.createdBy }} </td>
+                    <td class="text-center"> {{ activity.createdAt }} </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination-controls">
+                <button
+                class="page-btn"
+                [disabled]="activityCurrentPage === 1"
+                (click)="changeActivityPage(activityCurrentPage - 1)"
+              >
+                <mat-icon class="centered-icon">chevron_left</mat-icon>
+              </button>
+              <span>{{ activityCurrentPage }} of {{ activityTotalPages }}</span>
+              <button
+                class="page-btn"
+                [disabled]="currentPage === activityTotalPages"
+                (click)="changeActivityPage(activityCurrentPage + 1)"
+              >
+                <mat-icon class="centered-icon">chevron_right</mat-icon>
+              </button>
+                </div>
+              </div>
+            </div>
+            
+
+        </div>
+    </div>
+  </div>
+</div>

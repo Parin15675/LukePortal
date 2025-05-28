@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: luke-portal
+  namespace: luke-prd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: luke-portal
+  template:
+    metadata:
+      labels:
+        app: luke-portal
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: Nodepool
+                operator: In
+                values:
+                - stateless
+      tolerations:
+      - effect: NoSchedule
+        key: StatelessOnly
+        operator: Equal
+        value: "true"
+      containers:
+      - name: luke-portal
+        image: cgacraksprd.azurecr.io/slkpkt/luke-portal:v1.1.0
+        ports:
+        - name: bi-dashboard
+          protocol: TCP
+          containerPort: 5300
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/checkAppStatus
+            port: 5300
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/checkAppStatus
+            port: 5300
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "1024Mi"
+            cpu: "2000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: luke-portal
+  namespace: luke-prd
+spec:
+  type: ClusterIP
+  ports:
+    - name: luke-portal
+      protocol: TCP
+      port: 80
+      targetPort: 5300
+  selector:
+    app: luke-portal
+  sessionAffinity: None
+status:
+  loadBalancer: {}

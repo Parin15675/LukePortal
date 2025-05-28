@@ -1,0 +1,154 @@
+/* You can add global styles to this file, and also import other style files */
+
+
+html,
+body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif !important;
+  background-color: var(--main-bg-color) !important;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--main-bg-color !important);
+
+}
+::ng-deep .mat-menu-content{
+  max-height: 300px; 
+  overflow: scroll;
+}
+:root {
+  --main-bg-color: #FFE9E4;
+  --sub-blue-bg-color: #E9F2F9;
+  --primary: #F26C4F;
+  --text-white: #FFFF;
+  --text-black: #000;
+  --secondary: #0F0D23;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+span {
+  font-family: 'Poppins', sans-serif !important;
+}
+a{
+  color: var(--text-black);
+  text-decoration: none;
+}
+
+.font-bold {
+  font-weight: bold !important;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+.btn-section {
+  text-align: right;
+  padding-bottom: 15px;
+}
+.main-wrapper{
+  margin-top: 100px;
+  border-radius: 10px;
+}
+.item-list{
+  position: relative;
+  margin: 10px 0px;
+  width: 200px;
+  height: auto;
+  .item-head{
+      // position: absolute;
+      // bottom: 0;
+      padding-top: 10px;
+      margin-left: 15px;
+      text-align: center;
+  }
+  img{
+      border-radius: 20px;
+  }
+}
+.wrapper{
+  background-color: #fff;
+  // padding: 25px;
+  // margin-top: 115px;
+}
+.mat-drawer-content{
+  background-color: var(--main-bg-color);
+}
+.can-click{
+  cursor: pointer;
+}
+.pagination-controls{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  cursor: pointer;
+  background-color: var(--primary);
+  color: var(--text-white);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 10px;
+  margin: 5px 10px;
+}
+
+.page-btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: gray;
+}
+
+.centered-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px; /* Adjust the size as needed */
+}
+.badge.bg-danger {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 20px; /* This ensures the text (if any) is vertically centered */
+}
+.bg-green{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 20px;
+    background-color: green;
+}
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; 
+  }
+  @media (max-width: 767px) {
+    .item-list{
+      width: auto;
+      height: auto;
+    }
+}

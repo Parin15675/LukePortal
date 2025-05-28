@@ -1,0 +1,31 @@
+.wrapper-box{
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 20px;
+}
+.item {
+  background-color: var(--primary);
+  padding: 40px;
+  color: #fff;
+  margin: 5px;
+  text-align: center;
+  width: 250px;
+  cursor: pointer;
+  :hover{
+    
+  }
+  p {
+    margin: 0px;
+  }
+}
+
+@media (max-width: 767px) {
+    .wrapper-box{
+        height: auto;
+    }
+    .item {
+        width: 100%;
+    }
+}

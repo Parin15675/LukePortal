@@ -1,0 +1,39 @@
+<div class="container">
+    <!-- <app-breadcrumb></app-breadcrumb> -->
+    <!-- <app-banner></app-banner> -->
+    <div class="last-view">
+        <ng-container *ngIf="itemLastViewed.length > 0">
+            <h1 class="font-bold">Last viewed  </h1>
+            <div class="row">
+                <div class="col-md-3" *ngFor="let item of itemLastViewed;">
+                    <a (click)="navigateToDetail(item)">
+                        <div class="item-list">
+                            <img src="{{item.imageUrl}}" alt="">
+                            <div class="item-head">
+                                <p>{{item.name}}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </ng-container>
+
+
+        <div class="category-list">
+            <h1 class="font-bold">Category</h1>
+            <div class="row">
+                <div class="col-md-3" *ngFor="let item of categoryList">
+                    <!-- <a routerLink="/dashboard-list"> -->
+                        <a [routerLink]="['/dashboard-list']" [queryParams]="{category: item.params}" >
+                        <div class="item-list">
+                            <img src="{{item.imageUrl}}" alt="">
+                            <div class="item-head">
+                                <p>{{item.name}}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>

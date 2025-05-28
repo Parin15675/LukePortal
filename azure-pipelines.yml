@@ -1,0 +1,570 @@
+trigger:
+  branches:
+    include:
+      - develop
+      # - uat
+      - main
+      - refs/tags/dev-*
+      # - refs/tags/uat-*
+      - hotfix
+      # - feature/pipeline
+  tags:
+    include:
+      - "*"
+      - dev-*
+      # - uat-*
+
+resources:
+  repositories:
+    - repository: pipeline-module
+      type: git
+      name: RISPlayground/pipeline-module
+      ref: refs/heads/main
+    - repository: luke-test-script
+      type: git
+      name: Product - Luke/luke-test-script
+      ref: refs/heads/main
+    - repository: robot-framework
+      type: git
+      name: Product - Luke/robot-framework
+      ref: refs/heads/main
+
+pool:
+  vmImage: 'ubuntu-24.04'
+
+# Global Variable
+variables:
+# Global Uses
+  - name: SERVICE_NAME
+    value: "portal"
+  - name: SERVICE_PATH
+    value: ""
+  - name: DEFAULT_BU
+    value: ""
+  - name: REGISTRY_NAME
+    value: luke
+  - name: WORKING_DIRECTORY
+    value: "."
+  - name: HAS_MULTI_ENVIRONMENT
+    value: "false"
+  - name: IS_MAVEN_BUILD
+    value: "false"
+
+# Circle CI
+  - group: circleci
+  - name: ACR_CIRCLECI_SVCNAME
+    value: "cgacraksprd-svc"
+  - name: ACR_CIRCLECI_DKMAVEN_URL
+    value: $[variables.ACR_PRD_CI_DKMAVEN_URL]
+  - name: ACR_CIRCLECI_DK_URL
+    value: $[variables.ACR_PRD_CI_DK_URL]
+
+# # Checkmarx Scanning
+#   - name: CHECKMARX_SERVICE_CONNECTION
+#     value: "cx-ast-us-luke"
+#   - name: CHECKMARX_TENANT
+#     value: "Centralgroup"
+#   - name: CHECKMARX_IS_FILTER_FOLDER
+#     value: "false"
+
+# Set Version (Development)
+  - name: DEV_CONFIGURATION_REPO_URL
+    value: dev.azure.com/centralgroup/Product%20-%20Luke/_git/k8s-config
+  - name: DEV_CONFIGURATION_REPO_NAME
+    value: k8s-config
+  - name: DEV_CONFIGURATION_BRANCH
+    value: develop
+  - name: DEV_BOT_EMAIL
+    value: azuredevops-bot@central.co.th
+  - name: DEV_BOT_USERNAME
+    value: azuredevops-bot
+
+# UAT Flow
+# Set Version (UAT)
+  - name: UAT_CONFIGURATION_REPO_URL
+    value: dev.azure.com/centralgroup/Product%20-%20Luke/_git/k8s-config
+  - name: UAT_CONFIGURATION_REPO_NAME
+    value: k8s-config
+  - name: UAT_CONFIGURATION_BRANCH
+    value: develop
+  - name: UAT_BOT_EMAIL
+    value: azuredevops-bot@central.co.th
+  - name: UAT_BOT_USERNAME
+    value: azuredevops-bot
+
+# Production Flow
+# Set Version (Production)
+  - name: PRD_CONFIGURATION_REPO_URL
+    value: dev.azure.com/centralgroup/IAC/_git/product-k8s-config
+  - name: PRD_CONFIGURATION_REPO_NAME
+    value: product-k8s-config
+  - name: PRD_CONFIGURATION_BRANCH
+    value: main
+  - name: PRODUCT
+    value: luke
+  - name: PRD_BOT_EMAIL
+    value: azdevopsprd-bot@central.co.th
+  - name: PRD_BOT_USERNAME
+    value: azdevopsprd-bot
+
+# Hotfix Flow
+  - name: HOTFIX_CONFIGURATION_REPO_URL
+    value: dev.azure.com/centralgroup/Product%20-%20Luke/_git/k8s-config
+  - name: HOTFIX_CONFIGURATION_REPO_NAME
+    value: luke-portal
+  - name: HOTFIX_CONFIGURATION_BRANCH
+    value: hotfix
+
+stages:
+# - stage: Checkmarx_Incremental_Scanning_Dev
+#   displayName: Checkmarx Incremental Scanning
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+#   variables:
+#     - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'true') }}:
+#       - template: variables/checkmarx-folder.yml@pipeline-module
+#         parameters:
+#             DIRECTORY: $(WORKING_DIRECTORY)
+#   jobs:
+#     - job: Checkmarx_Incremental_Scanning
+#       steps:
+#       - template: steps/export-commit.yml@pipeline-module
+#       - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'false') }}:
+#         - template: steps/checkmarx-scanning.yml@pipeline-module
+#           parameters:
+#             CHECKMARX_SERVICE_CONNECTION: $(CHECKMARX_SERVICE_CONNECTION)
+#             CHECKMARX_TENANT: $(CHECKMARX_TENANT)
+#             SERVICE_NAME: $(SERVICE_NAME)
+#             REGISTRY_NAME: $(REGISTRY_NAME)
+#             TAG: $(exportCommitIDStep.commitID)
+#             CHECKMARX_FULL_SCAN: "false"
+#       - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'true') }}:
+#         - template: steps/export-scan-folder.yml@pipeline-module
+#           parameters:
+#             SCAN_FOLDER_COMMAND: $(SCAN_FOLDER_COMMAND)
+#         - template: steps/checkmarx-scanning-filter-folder.yml@pipeline-module
+#           parameters:
+#             CHECKMARX_SERVICE_CONNECTION: $(CHECKMARX_SERVICE_CONNECTION)
+#             CHECKMARX_TENANT: $(CHECKMARX_TENANT)
+#             SERVICE_NAME: $(SERVICE_NAME)
+#             REGISTRY_NAME: $(REGISTRY_NAME)
+#             TAG: $(exportCommitIDStep.commitID)
+#             CHECKMARX_FULL_SCAN: "false"
+#             CHECKMARX_SCAN_FOLDER: $(exportChxFolderStep.folderName)
+
+
+
+
+- stage: Build_Stage
+  displayName: Build Container Image
+  dependsOn: []
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+  variables:
+    - group: development
+  jobs:
+    - template: jobs/release-build-acr.yml@pipeline-module
+      parameters:
+        IS_MAVEN_BUILD: ${{ variables.IS_MAVEN_BUILD }}
+        PREFIX_SERVICE_NAME: $(DEFAULT_BU)
+        SERVICE_NAME: $(SERVICE_NAME)
+        DIRECTORY: $(WORKING_DIRECTORY)
+        ACR_USER: $(ACR_NONPRD_USER)
+        ACR_TOKEN: $(ACR_NONPRD_TOKEN)
+        ACR_URL: $(ACR_NONPRD_URL)
+        REGISTRY: $(ACR_NONPRD_URL)/$(REGISTRY_NAME)
+        GIT_USERNAME: $(GIT_USERNAME)
+        GIT_TOKEN: $(GIT_TOKEN)
+        GIT_REPO_URL: $(DEV_CONFIGURATION_REPO_URL)
+        GIT_REPO_NAME: $(DEV_CONFIGURATION_REPO_NAME)
+        GIT_BRANCH: $(DEV_CONFIGURATION_BRANCH)
+        ENVIRONMENT: $(ENVIRONMENT)
+        BOT_EMAIL: $(DEV_BOT_EMAIL)
+        BOT_USERNAME: $(DEV_BOT_USERNAME)
+        ACR_CI_SVCNAME: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+        ACR_CI_DKMAVEN_URL: $(ACR_CIRCLECI_DKMAVEN_URL)
+        ACR_CI_DK_URL: $(ACR_CIRCLECI_DK_URL)
+
+
+# # qa integration test
+# - stage: Robot_Test_Stage
+#   displayName: Check_UI_Test_Functionality
+#   dependsOn: Build_Stage
+#   # condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+#   jobs: 
+#     - template: jobs/robottest-functionality.yml@luke-test-script
+
+
+# - stage: Checkmarx_Incremental_Scanning_UAT
+#   displayName: Checkmarx Incremental Scanning
+#   condition: and(succeeded(), and(eq(variables['Build.SourceBranch'], 'refs/heads/uat'), not(contains(variables['Build.SourceVersionMessage'], '[skip ci]'))))
+#   dependsOn: []
+#   variables:
+#     - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'true') }}:
+#       - template: variables/checkmarx-folder.yml@pipeline-module
+#         parameters:
+#             DIRECTORY: $(WORKING_DIRECTORY)
+#   jobs:
+#     - job: Checkmarx_Incremental_Scanning
+#       steps:
+#       - template: steps/export-commit.yml@pipeline-module
+#       - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'false') }}:
+#         - template: steps/checkmarx-scanning.yml@pipeline-module
+#           parameters:
+#             CHECKMARX_SERVICE_CONNECTION: $(CHECKMARX_SERVICE_CONNECTION)
+#             CHECKMARX_TENANT: $(CHECKMARX_TENANT)
+#             SERVICE_NAME: $(SERVICE_NAME)
+#             REGISTRY_NAME: $(REGISTRY_NAME)
+#             TAG: $(exportCommitIDStep.commitID)
+#             CHECKMARX_FULL_SCAN: "false"
+#       - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'true') }}:
+#         - template: steps/export-scan-folder.yml@pipeline-module
+#           parameters:
+#             SCAN_FOLDER_COMMAND: $(SCAN_FOLDER_COMMAND)
+#         - template: steps/checkmarx-scanning-filter-folder.yml@pipeline-module
+#           parameters:
+#             CHECKMARX_SERVICE_CONNECTION: $(CHECKMARX_SERVICE_CONNECTION)
+#             CHECKMARX_TENANT: $(CHECKMARX_TENANT)
+#             SERVICE_NAME: $(SERVICE_NAME)
+#             REGISTRY_NAME: $(REGISTRY_NAME)
+#             TAG: $(exportCommitIDStep.commitID)
+#             CHECKMARX_FULL_SCAN: "false"
+#             CHECKMARX_SCAN_FOLDER: $(exportChxFolderStep.folderName)
+
+# - stage: Deploy_Multi_BU_UAT_Stage
+#   displayName: Deploy Multi BU UAT
+#   dependsOn: []
+#   condition: and(succeeded(), and(eq(variables['Build.SourceBranch'], 'refs/heads/uat'), not(contains(variables['Build.SourceVersionMessage'], '[skip ci]'))))
+#   variables:
+#     - group: uat
+#   jobs:
+#     - job: Deploy_Microservice
+#       ${{ if contains(variables.IS_MAVEN_BUILD, 'true') }}:
+#         container:
+#           image: $(ACR_CIRCLECI_DKMAVEN_URL)
+#           endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+#       ${{ else }}:
+#         container:
+#           image: $(ACR_CIRCLECI_DK_URL)
+#           endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+#       steps:
+#       - checkout: self
+#         fetchDepth: 10
+#       - template: steps/git/checkout.yml@pipeline-module
+#         parameters:
+#           DISPLAY_NAME: $(SERVICE_NAME) K8s Configuration
+#           GIT_USERNAME: $(GIT_USERNAME)
+#           GIT_TOKEN: $(GIT_TOKEN)
+#           GIT_REPO_URL: $(UAT_CONFIGURATION_REPO_URL)
+#           GIT_REPO_NAME: $(UAT_CONFIGURATION_REPO_NAME)
+#           GIT_BRANCH: $(UAT_CONFIGURATION_BRANCH)
+#       - template: steps/export-commit.yml@pipeline-module
+#         parameters:
+#           HAS_MULTI_ENVIRONMENT: $(HAS_MULTI_ENVIRONMENT)
+#       - template: steps/set-version.yml@pipeline-module
+#         parameters:
+#           DIRECTORY: $(UAT_CONFIGURATION_REPO_NAME)
+#           ENVIRONMENT: $(ENVIRONMENT)
+#           REGISTRY: $(ACR_NONPRD_URL)/$(REGISTRY_NAME)
+#           PREFIX_SERVICE_NAME: $(DEFAULT_BU)
+#           SERVICE_NAME: $(SERVICE_NAME)
+#           TAG: $(exportCommitIDStep.commitID)
+#       - template: steps/git/push.yml@pipeline-module
+#         parameters:
+#           DISPLAY_NAME: $(UAT_CONFIGURATION_REPO_NAME)
+#           GIT_REPO_NAME: $(UAT_CONFIGURATION_REPO_NAME)
+#           GIT_BRANCH: $(UAT_CONFIGURATION_BRANCH)
+#           BOT_EMAIL: $(UAT_BOT_EMAIL)
+#           BOT_USERNAME: $(UAT_BOT_USERNAME)
+#           RELEASE_VERSION: $(exportCommitIDStep.commitID)
+#           SERVICE_NAME: $(SERVICE_NAME)
+
+- stage: Retag_Stage
+  displayName: Retag Release Version
+  dependsOn: []
+  condition: and(and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main')), not(contains(variables['Build.SourceVersionMessage'], '[skip ci]')))
+  variables:
+    - group: production
+    - template: variables/package-json-release.yml@pipeline-module
+  jobs:
+    - job: Retag_Release_Version #no stg env if stg -n 3
+      ${{ if contains(variables.IS_MAVEN_BUILD, 'true') }}:
+        container:
+          image: $(ACR_CIRCLECI_DKMAVEN_URL)
+          endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+      ${{ else }}:
+        container:
+          image: $(ACR_CIRCLECI_DK_URL)
+          endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+      steps:
+      - checkout: self
+        fetchDepth: 10
+      - template: steps/export-commit-retag.yml@pipeline-module
+        parameters:
+          RELEASE_COMMAND: $(RELEASE_COMMAND)
+          HAS_MULTI_ENVIRONMENT: $(HAS_MULTI_ENVIRONMENT)
+      - template: steps/docker/login.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: Development
+          USER: $(ACR_NONPRD_USER)
+          PASS: $(ACR_NONPRD_TOKEN)
+          URL: $(ACR_NONPRD_URL)
+      - template: steps/docker/pull.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: $(SERVICE_NAME)
+          REGISTRY: $(ACR_NONPRD_URL)/$REGISTRY_NAME
+          SERVICE_NAME: $SERVICE_NAME
+          TAG: $(exportRetagStep.commitID)
+      - template: steps/docker/tag-and-push.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: Development Release
+          SOURCE_REGISTRY: $(ACR_NONPRD_URL)/$REGISTRY_NAME
+          TARGET_REGISTRY: $(ACR_NONPRD_URL)/$REGISTRY_NAME
+          SOURCE_TAG: $(exportRetagStep.commitID)
+          TARGET_TAG: $(exportRetagStep.releaseVersion)
+          SERVICE_NAME: $SERVICE_NAME
+      - template: steps/docker/login.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: Production
+          USER: $(ACR_PRD_USER)
+          PASS: $(ACR_PRD_TOKEN)
+          URL: $(ACR_PRD_URL)
+      - template: steps/docker/tag-and-push.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: Production Commit ID
+          SOURCE_REGISTRY: $(ACR_NONPRD_URL)/$REGISTRY_NAME
+          TARGET_REGISTRY: $(ACR_PRD_URL)/$REGISTRY_NAME
+          SOURCE_TAG: $(exportRetagStep.commitID)
+          TARGET_TAG: $(exportRetagStep.commitID)
+          SERVICE_NAME: $SERVICE_NAME
+      - template: steps/docker/tag-and-push.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: Production Release
+          SOURCE_REGISTRY: $(ACR_PRD_URL)/$REGISTRY_NAME
+          TARGET_REGISTRY: $(ACR_PRD_URL)/$REGISTRY_NAME
+          SOURCE_TAG: $(exportRetagStep.commitID)
+          TARGET_TAG: $(exportRetagStep.releaseVersion)
+          SERVICE_NAME: $(SERVICE_NAME)
+
+- stage: Deploy_Multi_BU_Stage
+  displayName: Deploy Multi BU NonPRD #dev/uat/sit
+  dependsOn: []
+  condition: or(startsWith(variables['build.sourceBranch'], 'refs/tags/dev-'), startsWith(variables['Build.sourceBranch'], 'refs/tags/uat-'))
+  variables:
+    - ${{ if startsWith(variables['build.sourceBranchName'], 'dev-') }}:
+      - group: development
+      - name: CONFIGURATION_REPO_URL
+        value: $(DEV_CONFIGURATION_REPO_URL)
+      - name: CONFIGURATION_REPO_NAME
+        value: $(DEV_CONFIGURATION_REPO_NAME)
+      - name: CONFIGURATION_BRANCH
+        value: $(DEV_CONFIGURATION_BRANCH)
+      - name: BOT_EMAIL
+        value: $(DEV_BOT_EMAIL)
+      - name: BOT_USERNAME
+        value: $(DEV_BOT_USERNAME)
+      - name: ACR_URL
+        value: $(ACR_NONPRD_URL)
+    - ${{ if startsWith(variables['Build.sourceBranchName'], 'uat-') }}:
+      - group: uat
+      - name: CONFIGURATION_REPO_URL
+        value: $(UAT_CONFIGURATION_REPO_URL)
+      - name: CONFIGURATION_REPO_NAME
+        value: $(UAT_CONFIGURATION_REPO_NAME)
+      - name: CONFIGURATION_BRANCH
+        value: $(UAT_CONFIGURATION_BRANCH)
+      - name: BOT_EMAIL
+        value: $(UAT_BOT_EMAIL)
+      - name: BOT_USERNAME
+        value: $(UAT_BOT_USERNAME)
+      - name: ACR_URL
+        value: $(ACR_NONPRD_URL)
+  jobs:
+    - job:
+      displayName: Set Version to Service (Multi Region)
+      ${{ if contains(variables.IS_MAVEN_BUILD, 'true') }}:
+        container:
+          image: $(ACR_CIRCLECI_DKMAVEN_URL)
+          endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+      ${{ else }}:
+        container:
+          image: $(ACR_CIRCLECI_DK_URL)
+          endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+      condition: or(eq(variables.ENVIRONMENT, 'dev'), eq(variables.ENVIRONMENT, 'uat'))
+      steps:
+        - template: steps/export-multi-region-release.yml@pipeline-module
+        - template: steps/git/checkout.yml@pipeline-module
+          parameters:
+            DISPLAY_NAME: $(SERVICE_NAME) K8s Configuration
+            GIT_USERNAME: $(GIT_USERNAME)
+            GIT_TOKEN: $(GIT_TOKEN)
+            GIT_REPO_URL: $(CONFIGURATION_REPO_URL)
+            GIT_REPO_NAME: $(CONFIGURATION_REPO_NAME)
+            GIT_BRANCH: $(CONFIGURATION_BRANCH)
+        - template: steps/set-version.yml@pipeline-module
+          parameters:
+            DIRECTORY: $(CONFIGURATION_REPO_NAME)
+            ENVIRONMENT: $(ENVIRONMENT)
+            REGISTRY: $(ACR_URL)/$(REGISTRY_NAME)
+            PREFIX_SERVICE_NAME: $(exportMultiRegionStep.prefixServiceName)
+            SERVICE_NAME: $(exportMultiRegionStep.serviceName)
+            TAG: $(exportMultiRegionStep.releaseVersion)
+        - template: steps/git/push.yml@pipeline-module
+          parameters:
+            DISPLAY_NAME: $(CONFIGURATION_REPO_NAME)
+            GIT_REPO_NAME: $(CONFIGURATION_REPO_NAME)
+            GIT_BRANCH: $(CONFIGURATION_BRANCH)
+            BOT_EMAIL: $(BOT_EMAIL)
+            BOT_USERNAME: $(BOT_USERNAME)
+            RELEASE_VERSION: $(exportMultiRegionStep.releaseVersion)
+            SERVICE_NAME: $(SERVICE_NAME)
+
+# - stage: Checkmarx_Full_Scanning_Hotfix
+#   displayName: Checkmarx Full Scanning
+#   condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/hotfix'))
+#   dependsOn: []
+#   variables:
+#     - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'true') }}:
+#       - template: variables/checkmarx-folder.yml@pipeline-module
+#         parameters:
+#             DIRECTORY: $(WORKING_DIRECTORY)
+#   jobs:
+#     - job: Checkmarx_Full_Scanning
+#       steps:
+#       - template: steps/export-commit.yml@pipeline-module
+#       - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'false') }}:
+#         - template: steps/checkmarx-scanning.yml@pipeline-module
+#           parameters:
+#             CHECKMARX_SERVICE_CONNECTION: $(CHECKMARX_SERVICE_CONNECTION)
+#             CHECKMARX_TENANT: $(CHECKMARX_TENANT)
+#             SERVICE_NAME: $(SERVICE_NAME)
+#             REGISTRY_NAME: $(REGISTRY_NAME)
+#             TAG: $(exportCommitIDStep.commitID)
+#             CHECKMARX_FULL_SCAN: "true"
+#       - ${{ if eq(variables.CHECKMARX_IS_FILTER_FOLDER, 'true') }}:
+#         - template: steps/export-scan-folder.yml@pipeline-module
+#           parameters:
+#             SCAN_FOLDER_COMMAND: $(SCAN_FOLDER_COMMAND)
+#         - template: steps/checkmarx-scanning-filter-folder.yml@pipeline-module
+#           parameters:
+#             CHECKMARX_SERVICE_CONNECTION: $(CHECKMARX_SERVICE_CONNECTION)
+#             CHECKMARX_TENANT: $(CHECKMARX_TENANT)
+#             SERVICE_NAME: $(SERVICE_NAME)
+#             REGISTRY_NAME: $(REGISTRY_NAME)
+#             TAG: $(exportCommitIDStep.commitID)
+#             CHECKMARX_FULL_SCAN: "true"
+#             CHECKMARX_SCAN_FOLDER: $(exportChxFolderStep.folderName)
+
+- stage: Hotfix_Stage
+  displayName: Build Hotfix Container Image
+  dependsOn: []
+  condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/heads/hotfix'))
+  variables:
+    - ${{ if  eq(variables.HAS_MULTI_ENVIRONMENT, false) }}:
+      - group: development
+      - name: ACR_USER
+        value: $(ACR_NONPRD_USER)
+      - name: ACR_TOKEN
+        value: $(ACR_NONPRD_TOKEN)
+      - name: ACR_URL
+        value: $(ACR_NONPRD_URL)
+      - name: CONFIGURATION_REPO_URL
+        value: $(DEV_CONFIGURATION_REPO_URL)
+      - name: CONFIGURATION_REPO_NAME
+        value: $(DEV_CONFIGURATION_REPO_NAME)
+      - name: CONFIGURATION_BRANCH
+        value: $(DEV_CONFIGURATION_BRANCH)
+      - name: BOT_EMAIL
+        value: $(DEV_BOT_EMAIL)
+      - name: BOT_USERNAME
+        value: $(DEV_BOT_USERNAME)
+    - ${{ if  eq(variables.HAS_MULTI_ENVIRONMENT, true) }}:
+      - group: uat
+      - name: ACR_USER
+        value: $(ACR_NONPRD_USER)
+      - name: ACR_TOKEN
+        value: $(ACR_NONPRD_TOKEN)
+      - name: ACR_URL
+        value: $(ACR_NONPRD_URL)
+      - name: CONFIGURATION_REPO_URL
+        value: $(UAT_CONFIGURATION_REPO_URL)
+      - name: CONFIGURATION_REPO_NAME
+        value: $(UAT_CONFIGURATION_REPO_NAME)
+      - name: CONFIGURATION_BRANCH
+        value: $(UAT_CONFIGURATION_BRANCH)
+      - name: BOT_EMAIL
+        value: $(UAT_BOT_EMAIL)
+      - name: BOT_USERNAME
+        value: $(UAT_BOT_USERNAME)
+  jobs:
+    - template: jobs/release-build-acr.yml@pipeline-module
+      parameters:
+        IS_MAVEN_BUILD: ${{ variables.IS_MAVEN_BUILD }}
+        PREFIX_SERVICE_NAME: $(DEFAULT_BU)
+        SERVICE_NAME: $(SERVICE_NAME)
+        DIRECTORY: $(WORKING_DIRECTORY)
+        ACR_USER: $(ACR_USER)
+        ACR_TOKEN: $(ACR_TOKEN)
+        ACR_URL: $(ACR_URL)
+        REGISTRY: $(ACR_NONPRD_URL)/$(REGISTRY_NAME)
+        GIT_USERNAME: $(GIT_USERNAME)
+        GIT_TOKEN: $(GIT_TOKEN)
+        GIT_REPO_URL: $(CONFIGURATION_REPO_URL)
+        GIT_REPO_NAME: $(CONFIGURATION_REPO_NAME)
+        GIT_BRANCH: $(CONFIGURATION_BRANCH)
+        ENVIRONMENT: $(ENVIRONMENT)
+        BOT_EMAIL: $(BOT_EMAIL)
+        BOT_USERNAME: $(BOT_USERNAME)
+        ACR_CI_SVCNAME: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+        ACR_CI_DKMAVEN_URL: $(ACR_CIRCLECI_DKMAVEN_URL)
+        ACR_CI_DK_URL: $(ACR_CIRCLECI_DK_URL)
+
+- stage: Deploy_Stage
+  displayName: Deploy Multi BU PRD
+  dependsOn: []
+  condition: and(startsWith(variables['build.sourceBranch'], 'refs/tags/'), not(or(startsWith(variables['build.sourceBranch'], 'refs/tags/dev-'), startsWith(variables['Build.sourceBranch'], 'refs/tags/sit-'), startsWith(variables['Build.sourceBranch'], 'refs/tags/uat-'))))
+  variables:
+  - group: production
+  jobs:
+    - job: Deploy_Microservice
+      ${{ if contains(variables.IS_MAVEN_BUILD, 'true') }}:
+        container:
+          image: $(ACR_CIRCLECI_DKMAVEN_URL)
+          endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+      ${{ else }}:
+        container:
+          image: $(ACR_CIRCLECI_DK_URL)
+          endpoint: ${{ variables.ACR_CIRCLECI_SVCNAME }}
+      condition: eq(variables.ENVIRONMENT, 'prod')
+      steps:
+      - template: steps/docker/login.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: Development
+          USER: $(ACR_PRD_USER)
+          PASS: $(ACR_PRD_TOKEN)
+          URL: $(ACR_PRD_URL)
+      - template: steps/git/checkout.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: $(SERVICE_NAME) K8s Configuration
+          GIT_USERNAME: $(GIT_USERNAME)
+          GIT_TOKEN: $(GIT_TOKEN)
+          GIT_REPO_URL: $(PRD_CONFIGURATION_REPO_URL)
+          GIT_REPO_NAME: $(PRD_CONFIGURATION_REPO_NAME)
+          GIT_BRANCH: $(PRD_CONFIGURATION_BRANCH)
+      - template: steps/export-release.yml@pipeline-module
+      - template: steps/set-version.yml@pipeline-module
+        parameters:
+          DIRECTORY: $PRD_CONFIGURATION_REPO_NAME
+          ENVIRONMENT: $(ENVIRONMENT)
+          REGISTRY: $(ACR_PRD_URL)/$(REGISTRY_NAME)
+          SERVICE_PATH: $(PRODUCT)/
+          SERVICE_NAME: $(exportReleaseStep.serviceName)
+          TAG: $(exportReleaseStep.releaseVersion)
+      - template: steps/git/push.yml@pipeline-module
+        parameters:
+          DISPLAY_NAME: $(PRD_CONFIGURATION_REPO_NAME)
+          GIT_REPO_NAME: $(PRD_CONFIGURATION_REPO_NAME)
+          GIT_BRANCH: $(PRD_CONFIGURATION_BRANCH)
+          BOT_EMAIL: $(PRD_BOT_EMAIL)
+          BOT_USERNAME: $(PRD_BOT_USERNAME)
+          RELEASE_VERSION: $(PRD_COMMIT_ID)
+          SERVICE_NAME: $(SERVICE_NAME)

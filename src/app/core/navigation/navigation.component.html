@@ -1,0 +1,112 @@
+<mat-sidenav-container class="navigation-container">
+  <mat-sidenav #sidenav class="example-sidenav" mode="side" opened="true">
+    <mat-nav-list>
+      <div class="brand-logo" *ngIf="isExpanded || isShowing">
+        <img src="../../../assets/images/luke-logo.png" alt="" />
+        <h1 routerLink="/">LUKE</h1>
+      </div>
+      <div class="full-width" *ngIf="!isExpanded">
+        <div class="brand-logo-hide">
+          <img src="../../../assets/images/luke-logo.png" alt="" />
+        </div>
+      </div>
+      <div class="column-list">
+        <div>
+          <mat-list-item class="parent" (click)="isExpanded = !isExpanded">
+            <mat-icon mat-list-icon>menu</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item
+            class="parent"
+            [routerLink]="['/']"
+            routerLinkActive="router-link-active"
+          >
+            <div class="item">
+              <mat-icon mat-list-icon>home</mat-icon>
+              <span class="full-width" *ngIf="isExpanded || isShowing"
+                >Home</span
+              >
+            </div>
+          </mat-list-item>
+          <mat-list-item
+            *ngIf="userRole === 'SUPERADMIN'"
+            class="parent"
+            routerLinkActive="router-link-active"
+            [matMenuTriggerFor]="menu"
+          >
+            <div class="item">
+              <mat-icon mat-list-icon>settings_applications</mat-icon>
+              <span class="full-width" *ngIf="isExpanded || isShowing"
+                >Setting</span
+              >
+            </div>
+          </mat-list-item>
+
+          <mat-menu #menu="matMenu" xPosition="after" class="sub-menu">
+            <button mat-menu-item [routerLink]="['/setting/category']">
+              Category management
+            </button>
+            <button mat-menu-item [routerLink]="['/setting/dashboard']">
+              Import Dashboard
+            </button>
+            <button mat-menu-item [routerLink]="['/setting/business-unit']">
+              User Management
+            </button>
+          </mat-menu>
+          <mat-list-item
+            class="parent"
+            (click)="logout()"
+            routerLinkActive="router-link-active"
+          >
+            <div class="item">
+              <mat-icon mat-list-icon>logout</mat-icon>
+              <span class="full-width" *ngIf="isExpanded || isShowing"
+                >Logout</span
+              >
+            </div>
+          </mat-list-item>
+        </div>
+
+        <mat-list-item>
+          <div class="item">
+            <!-- <mat-icon mat-list-icon>person</mat-icon> -->
+            <span class="full-width" *ngIf="isExpanded || isShowing">
+              {{ userInfo.payload.user.fname }}
+              {{ userInfo.payload.user.lastname }}</span
+            >
+          </div>
+          <span
+            *ngIf="isExpanded || isShowing"
+            style="font-size: 12px"
+            class="badge bg-secondary"
+            >{{ userRole }}</span
+          >
+        </mat-list-item>
+      </div>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <!-- <mat-toolbar class="toolbar">
+      <div class="container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center"></div>
+
+        <div class="d-flex align-items-center">
+          <div class="me-3" style="line-height: 1">
+            <span style="font-size: 14px" *ngIf="userRole">
+              {{ userInfo.payload.user.fname }}
+              {{ userInfo.payload.user.lastname }}</span
+            ><br />
+            <span style="font-size: 12px" class="badge bg-secondary">{{
+              userRole
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-toolbar> -->
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

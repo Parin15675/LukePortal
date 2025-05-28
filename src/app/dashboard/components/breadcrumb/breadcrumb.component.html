@@ -1,0 +1,8 @@
+<div class="breadcrumbs-space">
+    <ng-container *ngFor="let breadcrumb of breadcrumbs$ | async; let last = last">
+      <span *ngIf="!last; else lastBreadcrumb">
+        <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a> <mat-icon>navigate_next</mat-icon>
+      </span>
+      <ng-template #lastBreadcrumb>{{ breadcrumb.label }}</ng-template>
+    </ng-container>
+  </div>

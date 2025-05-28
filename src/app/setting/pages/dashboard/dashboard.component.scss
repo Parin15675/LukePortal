@@ -1,0 +1,70 @@
+table {
+    width: 100%;
+}
+
+.btn-section {
+    text-align: right;
+    padding-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    margin: 5px;
+    border-radius: 10px;
+    border: 1px solid gray;
+    padding: 4px 4px;
+}
+input::placeholder {
+    font:14px sans-serif;
+}
+.container {
+    margin-top: 100px;
+    border-radius: 10px;
+}
+
+#browse::file-selector-button {
+    display: none;
+}
+
+#browse {
+    color: transparent;
+}
+
+#browse::before {
+    content: url('../../../../assets/images/Group\ 34906.jpg');
+}
+
+.upload {
+    input {
+        border: none;
+    }
+}
+.material-icons{
+    font-size: 14px;
+}
+.mat-icon{
+    height: 16px;
+}
+.form-switch.form-switch-md .form-check-input {
+    padding-left: 0px !important;
+    height: 2em;
+    width: 4em;
+}
+
+.form-switch {
+    padding-left: 0px !important
+}
+
+.card-title {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 20px;   
+}
+
+.first-column{
+    font-weight: normal;
+}
+
+.activity-log{
+    position: relative;
+}

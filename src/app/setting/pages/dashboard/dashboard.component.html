@@ -1,0 +1,306 @@
+<div *ngIf="isLoading" class="loading-overlay">
+  <mat-spinner color="accent"></mat-spinner>
+</div>
+<div class="container p-4 bg-white">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Import Dashboard</h2>
+      <div class="btn-section">
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">List of Dashboard</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Name of Dashboard</th>
+                <th scope="col">BU</th>
+                <th scope="col">Category</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let item of dashboardsList"
+                [ngClass]="{
+                  'bg-light': dashboardsList.indexOf(item) % 2 === 0
+                }"
+              >
+                <td (click)="editDashboard(item)">{{ item.nameEn }}</td>
+                <td>{{ item.bu }}</td>
+                <td>{{ item.cateNameEn }}</td>
+                <td class="text-center">
+                  <span
+                    [ngClass]="{
+                      'bg-green': item.isActive,
+                      'badge bg-danger': !item.isActive
+                    }"
+                    >&nbsp;</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination-controls">
+            <button
+              class="page-btn"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)"
+            >
+              <mat-icon class="centered-icon">chevron_left</mat-icon>
+            </button>
+
+            <span>{{ currentPage }} of {{ totalPages }}</span>
+            <button
+              class="page-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)"
+            >
+              <mat-icon class="centered-icon">chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form section  -->
+
+    <div class="col-md-6">
+      <div >
+        <div class="card-body">
+          <h2 class="card-title">Dashboard information</h2>
+          <form [formGroup]="fForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="nameTh"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                  >Dashboard name (TH)<span style="color: red;"> *</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  name="nameTh"
+                  style="width: 100%"
+                  formControlName="nameTh"
+                  aria-describedby="emailHelp"
+                  required
+                  placeholder="Fill your dashboard name"
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="nameEn"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                  >Dashboard name (ENG)<span style="color: red;"> *</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  name="nameEn"
+                  formControlName="nameEn"
+                  style="width: 100%"
+                  placeholder="Fill your dashboard name"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="workspaceId"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                  >Workspace ID<span style="color: red;"> *</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  name="workspaceId"
+                  formControlName="workspaceId"
+                  style="width: 100%"
+                  placeholder="Fill your workspace ID"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="reportId"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                  >Report ID<span style="color: red;"> *</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  name="reportId"
+                  formControlName="reportId"
+                  style="width: 100%"
+                  placeholder="Fill your report id"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="category"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                  >Category<span style="color: red;"> *</span></label
+                >
+                <select
+                  formControlName="categoryId"
+                  class="form-control"
+                  style="width: 100%; font-size: 14px; color: #212529;"
+                >
+                  <option value="" disabled>Select your category</option>
+                  <option *ngFor="let cat of categoriesList" [value]="cat.id">
+                    {{ cat.nameEn}}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-inline-flex align-items-center w-100">
+                <label
+                  for="bu"
+                  class="form-label"
+                  style="min-width: 200px !important"
+                  >BU<span style="color: red;"> *</span></label
+                >
+                <select
+                  formControlName="bu"
+                  class="form-control"
+                  style="width: 100%; font-size: 14px; color: #212529;"
+                >
+                  <option value="" disabled >Select your BU</option>
+                  <option *ngFor="let bu of buOptions" [value]="bu">
+                    {{ bu }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-check form-switch form-switch-md">
+                <div class="d-inline-flex align-items-center w-100">
+                  <label
+                    for="exampleInputPassword1"
+                    class="form-label"
+                    style="min-width: 240px !important"
+                  >
+                    Status<span style="color: red;"> *</span>
+                  </label>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="isActive"
+                    
+                  />
+                </div>
+              </div>
+            </div>
+        
+            <div class="mb-3">
+              <div class="form-check form-switch form-switch-md">
+                <div class="d-inline-flex align-items-center w-100">
+                  <label
+                    for="exampleInputPassword1"
+                    class="form-label"
+                    style="min-width: 200px !important"
+                  >
+                    Dashboard Icon <span style="color: red;">*</span>
+                  </label>
+                  <input type="file" (change)="onSelectFile($event)"   style="width: 100%"/>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3" *ngIf="url">
+              <div class="form-check form-switch form-switch-md">
+                <div class="d-inline-flex align-items-center w-100">
+                  <label
+                    for="image"
+                    class="form-label"
+                    style="min-width: 240px !important"
+                  >
+                    Preview
+                  </label>
+                  <img [src]="url" style="height: 120px; width: auto" /> <br />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+    
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <div class="btn-section">
+                <app-secondary-btn
+                  [content]="'Cancel'"
+                  (onClick)="handleAction('Cancel')"
+                ></app-secondary-btn>
+              </div>
+              <div class="btn-section">
+                <app-primary-btn
+                  [content]="btnAction"
+                  (onClick)="handleAction(btnAction)"
+                ></app-primary-btn>
+              </div>
+            </div>
+          </form>
+          <!-- Activity log -->
+           <div *ngIf="toggleOpen">
+            <mat-divider></mat-divider>
+          <div class="activity-log">
+            <h3 class="card-title">Activity log</h3>
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col" class="text-center">Action</th>
+                  <th scope="col" class="text-center">User</th>
+                  <th scope="col" class="text-center">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let activity of activities; let i = index"
+                  [ngClass]="{ 'bg-light': activities.indexOf(activity) % 2 === 0  }"
+                >
+                    <td class="text-center"> {{ activity.serviceName  }} </td>
+                    <td class="text-center"> {{ activity.createdBy }} </td>
+                    <td class="text-center"> {{ activity.createdAt }} </td>
+                  </tr>
+
+              </tbody>
+            </table>
+            <div class="pagination-controls">
+              <button
+                class="page-btn"
+                [disabled]="activityCurrentPage === 1"
+                (click)="changeActivityPage(activityCurrentPage - 1)"
+              >
+                <mat-icon class="centered-icon">chevron_left</mat-icon>
+              </button>
+              <span>{{ activityCurrentPage }} of {{ activityTotalPages }}</span>
+              <button
+                class="page-btn"
+                [disabled]="currentPage === activityTotalPages"
+                (click)="changeActivityPage(activityCurrentPage + 1)"
+              >
+                <mat-icon class="centered-icon">chevron_right</mat-icon>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
